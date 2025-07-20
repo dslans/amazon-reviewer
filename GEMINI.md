@@ -1,0 +1,1 @@
+When installing new packages, use `uv pip install` to add them to the environment.
