@@ -1,0 +1,9 @@
+streamlit
+python-dotenv
+langchain
+langgraph
+langchain-community
+langchain-core
+langchain-google-genai
+st-copy-to-clipboard
+duckduckgo-search
