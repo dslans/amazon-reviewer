@@ -17,10 +17,11 @@ resource "google_project_service" "run_api" {
   service = "run.googleapis.com"
 }
 
-resource "google_artifact_registry_repository" "registry" {
+data "google_artifact_registry_repository" "registry" {
   location      = var.region
-  repository_id = "${var.service_name}-repo"
-  format        = "DOCKER"
+  # repository_id = "${var.service_name}-repo"
+  repository_id = "mcp-cloud-run-deployments"
+  # format        = "DOCKER"
 }
 
 resource "google_cloud_run_v2_service" "default" {
