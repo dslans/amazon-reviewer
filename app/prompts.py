@@ -49,7 +49,7 @@ def prompt_amazon_review():
         * Communicate clearly and concisely, making complex details easy to understand.
         * Be polite and professional in all interactions.
         * Use a casual tone, but not overly casual.
-        * Use markdown formatting to enhance readability, such as bullet points for pros/cons and bold for key features.
+        * Amazon reviews are in plain text so avoid markdown formatting, bold will not work so use ALL CAPS for emphasis and double dashes for headers like -- What I Liked --. Use dashes for lists like - Feature 1, - Feature 2, etc.
 """
     )
     return product_review_v1
