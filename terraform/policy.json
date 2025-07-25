@@ -1,0 +1,136 @@
+{
+  "bindings": [
+    {
+      "members": [
+        "serviceAccount:cloud-run-sa@agent-smith-3.iam.gserviceaccount.com"
+      ],
+      "role": "roles/aiplatform.user"
+    },
+    {
+      "members": [
+        "serviceAccount:service-337594753762@serverless-robot-prod.iam.gserviceaccount.com"
+      ],
+      "role": "roles/artifactregistry.reader"
+    },
+    {
+      "members": [
+        "serviceAccount:service-337594753762@gcp-sa-artifactregistry.iam.gserviceaccount.com"
+      ],
+      "role": "roles/artifactregistry.serviceAgent"
+    },
+    {
+      "members": [
+        "serviceAccount:337594753762-compute@developer.gserviceaccount.com"
+      ],
+      "role": "roles/artifactregistry.writer"
+    },
+    {
+      "members": [
+        "serviceAccount:service-337594753762@gcp-sa-cloudaicompanion.iam.gserviceaccount.com"
+      ],
+      "role": "roles/cloudaicompanion.serviceAgent"
+    },
+    {
+      "members": [
+        "serviceAccount:337594753762-compute@developer.gserviceaccount.com",
+        "serviceAccount:337594753762@cloudbuild.gserviceaccount.com",
+        "serviceAccount:gohma-1@agent-smith-3.iam.gserviceaccount.com"
+      ],
+      "role": "roles/cloudbuild.builds.builder"
+    },
+    {
+      "members": [
+        "serviceAccount:gohma-1@agent-smith-3.iam.gserviceaccount.com"
+      ],
+      "role": "roles/cloudbuild.loggingServiceAgent"
+    },
+    {
+      "members": [
+        "serviceAccount:service-337594753762@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+      ],
+      "role": "roles/cloudbuild.serviceAgent"
+    },
+    {
+      "members": [
+        "serviceAccount:service-337594753762@containerregistry.iam.gserviceaccount.com"
+      ],
+      "role": "roles/containerregistry.ServiceAgent"
+    },
+    {
+      "members": [
+        "serviceAccount:337594753762-compute@developer.gserviceaccount.com",
+        "serviceAccount:337594753762@cloudservices.gserviceaccount.com"
+      ],
+      "role": "roles/editor"
+    },
+    {
+      "members": [
+        "serviceAccount:337594753762-compute@developer.gserviceaccount.com"
+      ],
+      "role": "roles/iam.serviceAccountTokenCreator"
+    },
+    {
+      "members": [
+        "serviceAccount:337594753762-compute@developer.gserviceaccount.com",
+        "serviceAccount:337594753762@cloudbuild.gserviceaccount.com",
+        "serviceAccount:gohma-1@agent-smith-3.iam.gserviceaccount.com"
+      ],
+      "role": "roles/iam.serviceAccountUser"
+    },
+    {
+      "members": [
+        "serviceAccount:337594753762@cloudbuild.gserviceaccount.com",
+        "serviceAccount:gohma-1@agent-smith-3.iam.gserviceaccount.com"
+      ],
+      "role": "roles/logging.configWriter"
+    },
+    {
+      "members": [
+        "serviceAccount:337594753762-compute@developer.gserviceaccount.com",
+        "serviceAccount:gohma-1@agent-smith-3.iam.gserviceaccount.com"
+      ],
+      "role": "roles/logging.logWriter"
+    },
+    {
+      "members": [
+        "user:dslans@gmail.com"
+      ],
+      "role": "roles/owner"
+    },
+    {
+      "members": [
+        "serviceAccount:service-337594753762@gcp-sa-pubsub.iam.gserviceaccount.com"
+      ],
+      "role": "roles/pubsub.serviceAgent"
+    },
+    {
+      "members": [
+        "serviceAccount:337594753762-compute@developer.gserviceaccount.com",
+        "serviceAccount:337594753762@cloudbuild.gserviceaccount.com",
+        "serviceAccount:gohma-1@agent-smith-3.iam.gserviceaccount.com"
+      ],
+      "role": "roles/run.admin"
+    },
+    {
+      "members": [
+        "serviceAccount:337594753762-compute@developer.gserviceaccount.com",
+        "serviceAccount:service-337594753762@serverless-robot-prod.iam.gserviceaccount.com"
+      ],
+      "role": "roles/run.invoker"
+    },
+    {
+      "members": [
+        "serviceAccount:service-337594753762@serverless-robot-prod.iam.gserviceaccount.com"
+      ],
+      "role": "roles/run.serviceAgent"
+    },
+    {
+      "members": [
+        "serviceAccount:337594753762-compute@developer.gserviceaccount.com"
+      ],
+      "role": "roles/run.servicesInvoker"
+    }
+  ],
+  "etag": "BwY6xWiw0iI=",
+  "version": 1
+}

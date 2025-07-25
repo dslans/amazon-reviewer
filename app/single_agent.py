@@ -1,13 +1,12 @@
 
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
 from langgraph.prebuilt import create_react_agent
-
 from tools import tools
 from prompts import prompt_amazon_review
 
 # Load environment variables from .env file
-load_dotenv()
+# load_dotenv()
 
 # Define the model
 model = init_chat_model(

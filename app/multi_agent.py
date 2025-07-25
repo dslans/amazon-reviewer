@@ -1,4 +1,4 @@
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
 from langgraph_supervisor import create_supervisor, create_handoff_tool
 from langgraph.prebuilt import create_react_agent
@@ -7,7 +7,7 @@ from tools import tools
 import prompts
 
 # Load environment variables from .env file
-load_dotenv()
+# load_dotenv()
 
 # Define the model
 model = init_chat_model(
