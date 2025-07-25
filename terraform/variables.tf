@@ -14,3 +14,8 @@ variable "service_name" {
   type        = string
   default     = "amazon-product-reviewer"
 }
+
+variable "service_account_email" {
+  description = "The email of the service account to use for the Cloud Run service."
+  type        = string
+}

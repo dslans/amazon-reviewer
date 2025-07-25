@@ -36,6 +36,7 @@ resource "google_cloud_run_v2_service" "default" {
   ingress = "INGRESS_TRAFFIC_ALL"
 
   template {
+    service_account = google_service_account.default.email
     containers {
       image = "us-central1-docker.pkg.dev/agent-smith-3/amazon-product-reviewer-repo/amazon-product-reviewer:latest"
       ports {
@@ -52,6 +53,23 @@ resource "google_cloud_run_v2_service" "default" {
   deletion_protection = false
 
   depends_on = [google_project_service.run_api]
+}
+
+resource "google_service_account" "default" {
+  account_id   = "cloud-run-sa"
+  display_name = "Cloud Run Service Account"
+}
+
+resource "google_project_iam_member" "aiplatform_service_agent" {
+  project = var.project_id
+  role    = "roles/aiplatform.serviceAgent"
+  member  = "serviceAccount:${google_service_account.default.email}"
+}
+
+resource "google_project_iam_member" "cloudaicompanion_service_agent" {
+  project = var.project_id
+  role    = "roles/cloudaicompanion.serviceAgent"
+  member  = "serviceAccount:${google_service_account.default.email}"
 }
 
 resource "google_cloud_run_service_iam_member" "noauth" {
