@@ -1,6 +1,6 @@
 
 import streamlit as st
-from multi_agent import runnable
+from single_agent import runnable
 from st_copy_to_clipboard import st_copy_to_clipboard
 
 st.title("Amazon Review Assistant")

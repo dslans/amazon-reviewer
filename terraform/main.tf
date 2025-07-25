@@ -60,15 +60,16 @@ resource "google_service_account" "default" {
   display_name = "Cloud Run Service Account"
 }
 
-resource "google_project_iam_member" "aiplatform_service_agent" {
+
+resource "google_project_iam_member" "aiplatform_user" {
   project = var.project_id
-  role    = "roles/aiplatform.serviceAgent"
+  role    = "roles/aiplatform.user"
   member  = "serviceAccount:${google_service_account.default.email}"
 }
 
-resource "google_project_iam_member" "cloudaicompanion_service_agent" {
+resource "google_project_iam_member" "storage_object_viewer" {
   project = var.project_id
-  role    = "roles/cloudaicompanion.serviceAgent"
+  role    = "roles/storage.objectViewer"
   member  = "serviceAccount:${google_service_account.default.email}"
 }
 
