@@ -6,6 +6,7 @@
 **/.terraform.tfstate.lock.info
 **/.terraform.lock.hcl
 !tests/**/terraform.tfvars
+**/auth_users.yaml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

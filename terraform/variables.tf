@@ -12,5 +12,5 @@ variable "region" {
 variable "service_name" {
   description = "The name of the Cloud Run service."
   type        = string
-  default     = "amazon-reviewer"
+  default     = "amazon-product-reviewer"
 }
