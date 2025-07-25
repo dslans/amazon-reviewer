@@ -1,6 +1,7 @@
 
 # from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
+from langchain_google_vertexai import ChatVertexAI
 from langgraph.prebuilt import create_react_agent
 from tools import tools
 from prompts import prompt_amazon_review
@@ -9,10 +10,15 @@ from prompts import prompt_amazon_review
 # load_dotenv()
 
 # Define the model
-model = init_chat_model(
-    "google_genai:gemini-2.5-flash",
+# model = init_chat_model(
+#     "google_genai:gemini-2.5-flash",
+#     temperature=0
+# )
+model = ChatVertexAI(
+    model_name="gemini-2.5-flash", 
     temperature=0
 )
+
 
 # Create the ReAct agent
 valid_product_prompt = 'If the URL is not for an amazon product, inform the user that the review cannot be processed and ask for a valid Amazon product URL or name.'

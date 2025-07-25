@@ -4,6 +4,7 @@ from multi_agent import runnable
 from st_copy_to_clipboard import st_copy_to_clipboard
 
 st.title("Amazon Review Assistant")
+st.set_page_config(page_title="Amazon Review Assistant")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []

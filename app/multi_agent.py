@@ -1,5 +1,6 @@
 # from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
+from langchain_google_vertexai import ChatVertexAI
 from langgraph_supervisor import create_supervisor, create_handoff_tool
 from langgraph.prebuilt import create_react_agent
 
@@ -10,8 +11,12 @@ import prompts
 # load_dotenv()
 
 # Define the model
-model = init_chat_model(
-    "google_genai:gemini-2.5-flash",
+# model = init_chat_model(
+#     "google_genai:gemini-2.5-flash",
+#     temperature=0
+# )
+model = ChatVertexAI(
+    model_name="gemini-2.5-flash", 
     temperature=0
 )
 
