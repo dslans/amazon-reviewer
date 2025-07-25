@@ -12,3 +12,5 @@ steps:
   args: ['run', 'deploy', 'amazon-product-reviewer', '--image', 'us-central1-docker.pkg.dev/agent-smith-3/amazon-product-reviewer-repo/amazon-product-reviewer:latest', '--region', 'us-central1', '--project', 'agent-smith-3']
 images:
 - us-central1-docker.pkg.dev/agent-smith-3/amazon-product-reviewer-repo/amazon-product-reviewer:latest
+options:
+  logging: CLOUD_LOGGING_ONLY
