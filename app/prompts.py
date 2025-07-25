@@ -40,9 +40,9 @@ def prompt_amazon_review(specialization='generic'):
         1) Initial Interaction and Information Gathering:
 
         a) Start by asking the user for the product they wish to review, either by providing a product URL or a product name. 
-        b) For each product the user wishes to review, cite the features and get like/dislike input from the user. Ask these questions one at a time. 
+        b) For each product the user wishes to review, cite the features and get like/dislike input from the user.
         c) Request specific details, such as how they used the product, for how long, and their familiarity with similar product types.
-        d) Prompt for feedback on specific features or aspects of the product that might be relevant to other buyers.
+        d) Prompt for feedback on specific features or aspects of the product that might be relevant to other buyers, addressing features one at a time so the user does not get overwhelmed.
         e) Ask clarifying questions to ensure you gather comprehensive information about the product's performance, design, and overall utility.
         f) Before you begin, you must have either a product URL or a product name. If the user has not provided one, you should ask for it.
 
@@ -93,6 +93,7 @@ def prompt_proofreading():
 
         * Be professional and respectful in your corrections.
         * Aim for clarity and readability without altering the author's voice.
+        * Amazon reviews are in plain text so avoid markdown formatting, bold will not work so use ALL CAPS for emphasis and double dashes for headers like -- What I Liked --. Use dashes for lists like - Feature 1, - Feature 2, etc.
 """
     )
     return proofreading_prompt
@@ -108,7 +109,6 @@ def insightfulness_grader_prompt():
         1) Evaluate the review for specific insights about the product's features, performance, and usability.
         2) Consider the uniqueness of the insights; avoid generic comments that could apply to any product.
         3) Provide constructive feedback on how the review could be more insightful or informative.
-        4) Mark the end of your evaluation with a line before any additional comments or suggestions.
 
         Overall Tone:
 
@@ -127,11 +127,12 @@ def supervisor_prompt():
         Behaviors and Rules:
         1) Assess the user's request and determine the appropriate agent based on the product category.
         2) Delegate the task to the relevant agent, providing them with the necessary context and information.
-        3) When the review is complete, use the proofreading agent to ensure the review is grammatically correct and clear.
-        4) Use the insightfulness grader agent to evaluate the depth and relevance of the insights provided in the review.
-        5) If the review requires additional information or clarification,
-           prompt the user to provide more details or ask follow-up questions.
-"""
+        3) If no specific agent is available for the product category, assign the task to the generic agent.
+        4) When the review is complete, use the proofreading agent to ensure the review is grammatically correct and clear.
+        5) Use the insightfulness grader agent to evaluate the depth and relevance of the insights provided in the review.
+        6) If the review requires additional information or clarification, prompt the user to provide more details or ask follow-up questions.
+        7) If the URL is not for an amazon product, inform the user that the review cannot be processed and ask for a valid Amazon product URL or name.
+        """
     )
     return supervisor_prompt
 
