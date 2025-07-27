@@ -73,21 +73,12 @@ resource "google_project_iam_member" "storage_object_viewer" {
   member  = "serviceAccount:${google_service_account.default.email}"
 }
 
-
-resource "google_cloud_run_service_iam_member" "dslans_invoker" {
+resource "google_cloud_run_service_iam_member" "noauth" {
   location = google_cloud_run_v2_service.default.location
   project  = google_cloud_run_v2_service.default.project
   service  = google_cloud_run_v2_service.default.name
   role     = "roles/run.invoker"
-  member   = "user:dslans@gmail.com"
-}
-
-resource "google_cloud_run_service_iam_member" "scouvrard_invoker" {
-  location = google_cloud_run_v2_service.default.location
-  project  = google_cloud_run_v2_service.default.project
-  service  = google_cloud_run_v2_service.default.name
-  role     = "roles/run.invoker"
-  member   = "user:scouvrard@gmail.com"
+  member   = "allUsers"
 }
 
 # locals {
