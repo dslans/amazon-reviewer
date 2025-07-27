@@ -1,4 +1,5 @@
 streamlit
+streamlit-oauth
 python-dotenv
 langchain
 langchain-google-vertexai
