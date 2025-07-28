@@ -3,6 +3,8 @@ Agent to guide user through crafting a personalized and insightful review of pro
 
 This project is a demo to showcase the utilization of agent frameworks to create a conversational agent.
 
+![amazon reviewer AI chat](screenshot.png)
+
 ## Motivation
 I write a lot of Amazon Reviews, and this little life hack makes the process more interactive, engaging, and fun. It helps me be more thorough in addressing all the necessary features, while still maintaining my own feedback and tone. 
 
