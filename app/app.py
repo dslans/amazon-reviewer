@@ -1,178 +1,217 @@
-
 import streamlit as st
 from single_agent import runnable
 from st_copy_to_clipboard import st_copy_to_clipboard
 import json
+from google_auth_oauthlib.flow import Flow
+from google.oauth2.credentials import Credentials
+import os
 
-# # --- Google OAuth2 Auth Setup ---
-# from streamlit_oauth import OAuth2Component
+# --- Configuration ---
+SCOPES = ["openid", "https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"]
 
+# Determine if running in Cloud Run or locally
+IS_CLOUD_RUN = os.environ.get("K_SERVICE") is not None
 
-# # Load Google OAuth2 credentials from .env using load_dotenv
-# from dotenv import load_dotenv
-# import os
-# load_dotenv()
-# GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-# GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-# GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
-# GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
-# GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
-# GOOGLE_USERINFO_URL = "https://openidconnect.googleapis.com/v1/userinfo"
+if IS_CLOUD_RUN:
+    # In Cloud Run, read client secrets from environment variable (Secret Manager)
+    CLIENT_SECRETS_CONTENT = os.environ.get("CLIENT_SECRETS_JSON")
+    if not CLIENT_SECRETS_CONTENT:
+        st.error("CLIENT_SECRETS_JSON environment variable not found. Cannot authenticate.")
+        st.stop()
+    # Create a temporary file to load secrets from content
+    with open("temp_client_secret.json", "w") as f:
+        f.write(CLIENT_SECRETS_CONTENT)
+    CLIENT_SECRETS_FILE = "temp_client_secret.json"
+    # For Cloud Run, the redirect URI is the service URL
+    REDIRECT_URI = f"https://{os.environ['K_SERVICE']}-{os.environ['K_REVISION'].split('--')[0]}-{os.environ['K_SERVICE'].split('-')[-1]}.run.app"
+else:
+    # Locally, read client secrets from file
+    CLIENT_SECRETS_FILE = "client_secret.json"
+    if not os.path.exists(CLIENT_SECRETS_FILE):
+        st.error(f"Error: {CLIENT_SECRETS_FILE} not found. Please download it from Google Cloud Console.")
+        st.stop()
+    REDIRECT_URI = "http://localhost:8501"
 
-
-# # Load allowed emails from YAML config
-# import yaml
-# AUTH_USERS_PATH = os.path.join(os.path.dirname(__file__), '../terraform/auth_users.yaml')
-# def load_allowed_emails():
-#     try:
-#         with open(AUTH_USERS_PATH, 'r') as f:
-#             data = yaml.safe_load(f)
-#         # Extract just the email part (after 'user:')
-#         return set(u.split(':',1)[1] for u in data.get('invoker_users', []) if u.startswith('user:'))
-#     except Exception as e:
-#         st.error(f"Failed to load allowed users: {e}")
-#         return set()
-# ALLOWED_EMAILS = load_allowed_emails()
-
-# oauth2 = OAuth2Component(
-#     GOOGLE_CLIENT_ID,
-#     GOOGLE_CLIENT_SECRET,
-#     GOOGLE_AUTH_URL,
-#     GOOGLE_TOKEN_URL
-# )
-
-# def get_user_email(token):
-#     import requests
-#     if not token or "access_token" not in token:
-#         return None
-#     resp = requests.get(GOOGLE_USERINFO_URL, headers={"Authorization": f"Bearer {token['access_token']}"})
-#     if resp.status_code == 200:
-#         return resp.json().get("email")
-#     return None
-
-# # --- Auth Flow ---
-# if "token" not in st.session_state:
-#     st.session_state.token = None
-# if "user_email" not in st.session_state:
-#     st.session_state.user_email = None
-
-# if not st.session_state.token:
-#     token = oauth2.authorize_button(
-#         "Login with Google",
-#         "openid email profile",
-#         GOOGLE_USERINFO_URL,
-#         key="google_oauth"
-#     )
-#     if token:
-#         st.session_state.token = token
-#         st.session_state.user_email = get_user_email(token)
-#         st.experimental_rerun()
-#     st.stop()
-# elif not st.session_state.user_email:
-#     st.session_state.user_email = get_user_email(st.session_state.token)
-#     if not st.session_state.user_email:
-#         st.warning("Could not fetch your email. Please try logging in again.")
-#         st.session_state.token = None
-#         st.stop()
-
-# if st.session_state.user_email not in ALLOWED_EMAILS:
-#     st.error(f"Access denied. Your email ({st.session_state.user_email}) is not authorized.")
-#     if st.button("Logout"):
-#         st.session_state.token = None
-#         st.session_state.user_email = None
-#         st.experimental_rerun()
-#     st.stop()
-
-# if st.button("Logout"):
-#     st.session_state.token = None
-#     st.session_state.user_email = None
-#     st.experimental_rerun()
-
-
-st.set_page_config(page_title="Amazon Review Assistant")
-st.title("Amazon Review Assistant")
-st.subheader("What would you like to review? Enter product name or URL")
-
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-if "last_review" not in st.session_state:
-    st.session_state.last_review = None
-if "finalized" not in st.session_state:
-    st.session_state.finalized = False
-
-
-# Show all prior messages, with copy button for assistant responses
-for i, message in enumerate(st.session_state.messages):
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
-        if message["role"] == "assistant":
-            st_copy_to_clipboard(message["content"])
-
-
-
-if not st.session_state.finalized:
-    # Only show the intro prompt if there are no user messages yet
-    chat_prompt = "Your response"
-    if prompt := st.chat_input(chat_prompt):
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
-
-        with st.chat_message("assistant"):
-            response = runnable.invoke({"messages": st.session_state.messages})
-            review = response["messages"][-1].content
-            st.markdown(review)
-        st.session_state.messages.append({"role": "assistant", "content": review})
-        st.session_state.last_review = review
-
-
-    # Show finalize button only after the agent signals readiness
-    show_finalize = False
-    if (
-        st.session_state.last_review
-        and len(st.session_state.messages) > 1
-        and st.session_state.messages[-1]["role"] == "assistant"
-        and st.session_state.messages[-2]["role"] == "user"
-        and not st.session_state.finalized
-    ):
-        last_content = st.session_state.messages[-1]["content"]
-        if last_content.strip().endswith("---REVIEW IS READY---"):
-            show_finalize = True
-    if show_finalize:
-        if st.button("Finalize Review"):
-            st.session_state.finalized = True
-
-# When finalized, ask for JSON output
-if st.session_state.finalized:
-    structured_prompt = (
-        "You are an API backend. Respond ONLY with plain JSON, not in a code block, and do not add any commentary.\n"
-        "Please provide the finalized review in JSON with the following fields:\n"
-        "{\n"
-        '  "title": "<short review title>",\n'
-        '  "review": "<the main review text>",\n'
-        '  "followup": ["<first follow-up question>", "<second follow-up question>"]\n'
-        "}\n"
-        f"Base your response on this review:\n{st.session_state.last_review}"
+# --- Helper Functions ---
+def get_flow():
+    """Creates and returns a Flow object for the OAuth 2.0 process."""
+    return Flow.from_client_secrets_file(
+        CLIENT_SECRETS_FILE,
+        scopes=SCOPES,
+        redirect_uri=REDIRECT_URI
     )
-    response = runnable.invoke({"messages": st.session_state.messages + [{"role": "user", "content": structured_prompt}]})
-    content = response["messages"][-1].content.strip()
-    # Remove code block markers if present
-    if content.startswith("```json"):
-        content = content[len("```json"):].strip()
-    if content.startswith("```"):
-        content = content[len("```"):].strip()
-    if content.endswith("```"):
-        content = content[:-len("```")].strip()
+
+def get_credentials():
+    """
+    Checks for credentials in the session state.
+    Returns Credentials object or None.
+    """
+    if 'credentials' not in st.session_state:
+        return None
+    
+    credentials_dict = st.session_state['credentials']
+    return Credentials(
+        token=credentials_dict['token'],
+        refresh_token=credentials_dict.get('refresh_token'),
+        token_uri=credentials_dict['token_uri'],
+        client_id=credentials_dict['client_id'],
+        client_secret=credentials_dict['client_secret'],
+        scopes=credentials_dict['scopes']
+    )
+
+# --- Main App Logic ---
+st.set_page_config(layout="wide")
+
+# Check for authentication code in URL query params
+query_params = st.query_params
+if 'code' in query_params and 'credentials' not in st.session_state:
+    code = query_params['code']
+    flow = get_flow()
+    flow.fetch_token(code=code)
+    
+    credentials = flow.credentials
+    st.session_state['credentials'] = {
+        'token': credentials.token,
+        'refresh_token': credentials.refresh_token,
+        'token_uri': credentials.token_uri,
+        'client_id': credentials.client_id,
+        'client_secret': credentials.client_secret,
+        'scopes': credentials.scopes
+    }
+    
+    # Clear the query params from the URL
+    st.query_params.clear()
+    st.rerun()
+
+# Get credentials from session state
+credentials = get_credentials()
+
+if not credentials:
+    # If not logged in, show the login button
+    st.title("Welcome to the Amazon Reviewer App")
+    st.write("Please log in to continue.")
+    
+    flow = get_flow()
+    authorization_url, _ = flow.authorization_url(
+        access_type='offline',
+        include_granted_scopes='true'
+    )
+    
+    st.link_button("Login with Google", authorization_url)
+
+else:
+    # If logged in, show the main app
+    st.title("Amazon Product Reviewer")
+    st.write("Welcome! You are logged in.")
+    
+    # You can now use the credentials to make authenticated API calls
+    # For example, to get user info:
+    from googleapiclient.discovery import build
+    
     try:
-        data = json.loads(content)
-        # Display each part as a separate chat message
-        with st.chat_message("assistant"):
-            st.markdown(f"**Title:** {data['title']}")
-            st_copy_to_clipboard(data["title"])
-        with st.chat_message("assistant"):
-            st.markdown(f"**Review:**\n{data['review']}")
-            st_copy_to_clipboard(data["review"])
-    except Exception:
-        st.markdown(response["messages"][-1].content)
-    st.session_state.finalized = False
-    st.session_state.last_review = None
+        service = build('oauth2', 'v2', credentials=credentials)
+        user_info = service.userinfo().get().execute()
+        
+        # st.write("Your email address is:", user_info['email'])
+        # st.write("Your name is:", user_info.get('name', 'N/A'))
+        
+        # if user_info.get('picture'):
+        #     st.image(user_info['picture'], width=100)
+            
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+        st.write("Your credentials may have expired.")
+        if st.button("Logout"):
+            del st.session_state['credentials']
+            st.rerun()
+
+    # Add a logout button
+    if st.button("Logout"):
+        del st.session_state['credentials']
+        st.rerun()
+
+    st.subheader("What would you like to review? Enter product name or URL")
+
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+    if "last_review" not in st.session_state:
+        st.session_state.last_review = None
+    if "finalized" not in st.session_state:
+        st.session_state.finalized = False
+
+
+    # Show all prior messages, with copy button for assistant responses
+    for i, message in enumerate(st.session_state.messages):
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+            if message["role"] == "assistant":
+                st_copy_to_clipboard(message["content"])
+
+
+
+    if not st.session_state.finalized:
+        # Only show the intro prompt if there are no user messages yet
+        chat_prompt = "Your response"
+        if prompt := st.chat_input(chat_prompt):
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.markdown(prompt)
+
+            with st.chat_message("assistant"):
+                response = runnable.invoke({"messages": st.session_state.messages})
+                review = response["messages"][-1].content
+                st.markdown(review)
+            st.session_state.messages.append({"role": "assistant", "content": review})
+            st.session_state.last_review = review
+
+
+        # Show finalize button only after the agent signals readiness
+        show_finalize = False
+        if (
+            st.session_session.last_review
+            and len(st.session_state.messages) > 1
+            and st.session_state.messages[-1]["role"] == "assistant"
+            and st.session_state.messages[-2]["role"] == "user"
+            and not st.session_state.finalized
+        ):
+            last_content = st.session_state.messages[-1]["content"]
+            if last_content.strip().endswith("---REVIEW IS READY---"):
+                show_finalize = True
+        if show_finalize:
+            if st.button("Finalize Review"):
+                st.session_state.finalized = True
+
+    # When finalized, ask for JSON output
+    if st.session_state.finalized:
+        structured_prompt = (
+            "You are an API backend. Respond ONLY with plain JSON, not in a code block, and do not add any commentary.\n"
+            "Please provide the finalized review in JSON with the following fields:\n"
+            "{\n"
+            '  "title": "<short review title>",\n'
+            '  "review": "<the main review text>",\n'
+            '  "followup": ["<first follow-up question>", "<second follow-up question>"]\n'
+            "}\n"
+            f"Base your response on this review:\n{st.session_state.last_review}"
+        )
+        response = runnable.invoke({"messages": st.session_state.messages + [{"role": "user", "content": structured_prompt}]})
+        content = response["messages"][-1].content.strip()
+        # Remove code block markers if present
+        if content.startswith("```json"):
+            content = content[len("```json"):]
+        if content.startswith("```"):
+            content = content[len("```"):]
+        if content.endswith("```"):
+            content = content[:-len("```")]
+        try:
+            data = json.loads(content)
+            # Display each part as a separate chat message
+            with st.chat_message("assistant"):
+                st.markdown(f"**Title:** {data['title']}")
+                st_copy_to_clipboard(data["title"])
+            with st.chat_message("assistant"):
+                st.markdown(f"**Review:**\n{data['review']}")
+                st_copy_to_clipboard(data["review"])
+        except Exception:
+            st.markdown(response["messages"][-1].content)
+        st.session_state.finalized = False
+        st.session_state.last_review = None

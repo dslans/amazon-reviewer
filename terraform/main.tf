@@ -47,6 +47,15 @@ resource "google_cloud_run_v2_service" "default" {
           port = 8501
         }
       }
+      env {
+        name = "CLIENT_SECRETS_JSON"
+        value_source {
+          secret_key_ref {
+            secret = "google-oauth-client-secret"
+            version = "latest"
+          }
+        }
+      }
     }
   }
 
@@ -80,16 +89,3 @@ resource "google_cloud_run_service_iam_member" "noauth" {
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
-
-# locals {
-#   invoker_users_config = yamldecode(file("${path.module}/auth_users.yaml"))
-#   invoker_members      = local.invoker_users_config.invoker_users
-# }
-
-# resource "google_cloud_run_service_iam_binding" "invoker_binding" {
-#   service  = google_cloud_run_v2_service.default.name
-#   location = google_cloud_run_v2_service.default.location
-#   role     = "roles/run.invoker"
-#   members  = local.invoker_members
-# }
-
