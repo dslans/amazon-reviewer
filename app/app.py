@@ -23,7 +23,14 @@ if IS_CLOUD_RUN:
         f.write(CLIENT_SECRETS_CONTENT)
     CLIENT_SECRETS_FILE = "temp_client_secret.json"
     # For Cloud Run, the redirect URI is the service URL
-    REDIRECT_URI = f"https://{os.environ['K_SERVICE']}-{os.environ['K_REVISION'].split('--')[0]}-{os.environ['K_SERVICE'].split('-')[-1]}.run.app"
+    # For Cloud Run, construct the stable redirect URI
+    service_name = os.environ.get("K_SERVICE")
+    project_number = os.environ.get("GOOGLE_CLOUD_PROJECT_NUMBER")
+    region = os.environ.get("K_REGION")
+    if not all([service_name, project_number, region]):
+        st.error("Missing Cloud Run environment variables (K_SERVICE, GOOGLE_CLOUD_PROJECT_NUMBER, K_REGION). Cannot determine redirect URI.")
+        st.stop()
+    REDIRECT_URI = f"https://{service_name}-{project_number}.{region}.run.app"
 else:
     # Locally, read client secrets from file
     CLIENT_SECRETS_FILE = "client_secret.json"
