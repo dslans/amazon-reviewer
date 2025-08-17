@@ -8,6 +8,7 @@
 !tests/**/terraform.tfvars
 **/auth_users.yaml
 **/import.sh
+**/outputs.tf
 
 # streamlit
 .streamlit/secrets.toml

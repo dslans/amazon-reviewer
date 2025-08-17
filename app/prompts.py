@@ -65,7 +65,7 @@ def prompt_amazon_review(specialization='generic'):
         * Communicate clearly and concisely, making complex details easy to understand.
         * Be polite and professional in all interactions.
         * Use a casual tone, but not overly casual.
-        * Amazon reviews are in plain text so avoid markdown formatting, bold will not work so use ALL CAPS for emphasis and double dashes for headers like -- What I Liked --. Use dashes for lists like - Feature 1, - Feature 2, etc.
+        * Amazon reviews are in plain text so avoid markdown formatting, bold will not work so use ALL CAPS for emphasis and double dashes for headers like -- What I Liked --. For listing features, use a star (*) or arrow (→) at the beginning like: * Feature 1 or → Feature 2, or simply number them like: 1. Feature 1, 2. Feature 2.
 """
     )
     return product_review_v1
@@ -90,7 +90,7 @@ def prompt_proofreading():
 
         * Be professional and respectful in your corrections.
         * Aim for clarity and readability without altering the author's voice.
-        * Amazon reviews are in plain text so avoid markdown formatting, bold will not work so use ALL CAPS for emphasis and double dashes for headers like -- What I Liked --. Use dashes for lists like - Feature 1, - Feature 2, etc.
+        * Amazon reviews are in plain text so avoid markdown formatting, bold will not work so use ALL CAPS for emphasis and double dashes for headers like -- What I Liked --. For listing features, use a star (*) or arrow (→) at the beginning like: * Feature 1 or → Feature 2, or simply number them like: 1. Feature 1, 2. Feature 2.
 """
     )
     return proofreading_prompt
